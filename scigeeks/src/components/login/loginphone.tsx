@@ -110,9 +110,10 @@ export default function LoginPhone({ onBack, onSuccess, intent = "login" }: Logi
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
       if (intent !== "signup") {
         // Verify profile exists on backend
-        const profileRes = await fetch("http://localhost:5000/api/profile", {
+        const profileRes = await fetch(`${apiBase}/api/profile`, {
           headers: {
             ...(token ? { "Authorization": `Bearer ${token}` } : {}),
           },
@@ -123,7 +124,7 @@ export default function LoginPhone({ onBack, onSuccess, intent = "login" }: Logi
         }
       } else {
         // Call backend create-account endpoint directly
-        const res = await fetch("http://localhost:5000/api/auth/create-account", {
+        const res = await fetch(`${apiBase}/api/auth/create-account`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

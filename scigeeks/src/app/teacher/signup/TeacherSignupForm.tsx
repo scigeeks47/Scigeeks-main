@@ -56,7 +56,8 @@ export default function TeacherSignupForm() {
 
     try {
       // 1. Check if email is already registered via backend
-      const checkRes = await fetch("http://localhost:5000/api/auth/check-email", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const checkRes = await fetch(`${apiBase}/api/auth/check-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email.trim() }),
@@ -99,7 +100,7 @@ export default function TeacherSignupForm() {
 
         // Call backend POST /api/auth/create-teacher-account
         // Note: Frontend does NOT send role in request body
-        const backendRes = await fetch("http://localhost:5000/api/auth/create-teacher-account", {
+        const backendRes = await fetch(`${apiBase}/api/auth/create-teacher-account`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

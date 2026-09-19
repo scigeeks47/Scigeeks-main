@@ -25,7 +25,8 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const fetchProfile = async (accessToken: string, retries = 2) => {
       if (isMounted) setLoading(true);
       try {
-        const res = await fetch("http://localhost:5000/api/profile", {
+        const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+        const res = await fetch(`${apiBase}/api/profile`, {
           headers: {
             "Authorization": `Bearer ${accessToken}`,
           },

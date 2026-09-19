@@ -42,7 +42,8 @@ export default function TeacherLoginPage() {
 
       // 2. Fetch user profile from backend to verify teacher role
       const token = authData.session.access_token;
-      const res = await fetch("http://localhost:5000/api/profile", {
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const res = await fetch(`${apiBase}/api/profile`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
