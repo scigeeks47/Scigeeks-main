@@ -13,6 +13,7 @@ import ProgressIndicator from "./progressindicator";
 import { Button } from "@/components/ui/button";
 import { PartyPopper } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/components/shared/AuthProvider";
 
 // Predetermined star patterns to avoid SSR hydration mismatches
 interface Star {
@@ -76,33 +77,18 @@ function CreateAccountContent() {
   const [email, setEmail] = useState<string>(emailParam || "");
   const [toast, setToast] = useState<string | null>(null);
 
+  const { user, loading } = useAuth();
+
   useEffect(() => {
-    const checkSession = async () => {
-      if (viewParam === "password") return;
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        try {
-          const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-          const res = await fetch(`${apiBase}/api/profile`, {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-          if (res.ok) {
-            const profileData = await res.json();
-            if (profileData.success && profileData.user?.role === "teacher") {
-              router.push("/teacher/dashboard");
-              return;
-            }
-          }
-        } catch (err) {
-          console.error("createaccount checkSession error:", err);
-        }
-        router.push("/dashboard");
+    if (viewParam === "password") return;
+    if (!loading && user) {
+      if (user.role === "teacher") {
+        router.replace("/teacher/dashboard");
+      } else {
+        router.replace("/dashboard");
       }
-    };
-    checkSession();
-  }, [router, viewParam]);
+    }
+  }, [user, loading, router, viewParam]);
 
   const showToast = (msg: string) => {
     setToast(msg);

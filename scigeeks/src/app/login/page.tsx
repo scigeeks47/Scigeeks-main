@@ -13,9 +13,12 @@ type LoginView = "entry" | "email" | "phone" | "success";
 
 import { supabase } from "@/lib/supabaseClient";
 
+import { useAuth } from "@/components/shared/AuthProvider";
+
 function LoginPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user, loading } = useAuth();
   const viewParam = searchParams.get("view");
   const [view, setView] = useState<LoginView>(
     viewParam === "email" || viewParam === "entry" || viewParam === "phone" || viewParam === "success"
@@ -32,38 +35,14 @@ function LoginPageContent() {
   }, [errorParam]);
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        // If profile_not_found error is present in query, don't auto-redirect, sign out.
-        if (errorParam === "profile_not_found") {
-          await supabase.auth.signOut();
-          return;
-        }
-
-        try {
-          const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-          const res = await fetch(`${apiBase}/api/profile`, {
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-          if (res.ok) {
-            const profileData = await res.json();
-            if (profileData.success && profileData.user?.role === "teacher") {
-              router.push("/teacher/dashboard");
-              return;
-            }
-          }
-        } catch (err) {
-          console.error("Login session check profile fetch error:", err);
-        }
-
-        router.push("/dashboard");
+    if (!loading && user && !errorParam) {
+      if (user.role === "teacher") {
+        router.replace("/teacher/dashboard");
+      } else {
+        router.replace("/dashboard");
       }
-    };
-    checkSession();
-  }, [router, errorParam]);
+    }
+  }, [user, loading, errorParam, router]);
 
   const handleBack = () => {
     if (view === "entry") {
