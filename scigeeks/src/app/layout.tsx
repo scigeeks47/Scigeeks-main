@@ -11,6 +11,11 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "SciGeeks - Learn Science",
   description: "Join over 10.000 learners over the World and enjoy online education!",
+  icons: {
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 import AuthProvider from "@/components/shared/AuthProvider";
 
